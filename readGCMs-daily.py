@@ -69,7 +69,7 @@ def read_hs(wd, varnm, read_p=False, modnm='', exper='', ensmem='', typevar='', 
 #     print('here')
     import glob
     folder=glob.glob(wd+'*/*/')
-#    print (folder) 
+#     print (folder) 
     fn = glob.glob(folder[0]+'/*'+varnm+'_*'+typevar+'*' +
                    modnm+'_'+exper+'*'+ensmem+'*nc*')
 #     print(folder[0]+'/*'+varnm+'*'+typevar+'*'+modnm+'_'+exper+'*'+ensmem+'*nc*')
