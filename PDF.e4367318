@@ -1,4 +1,0 @@
-  File "/glade/work/geethma/research/codes/GCMwind_M_pdf.py", line 133
-    plt.scatter(np.sort(yy[indx]), norm.pdf(np.sort(yy[indx])), s=s label=modname[i])
-                                                                    ^
-SyntaxError: invalid syntax
