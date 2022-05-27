@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/GCMwind_M_readmodels.py", line 275, in <module>
+    bin_means, bin_edges, binnumber = stats.binned_statistic(xx_new[indx], yy_new[indx], 'mean', bins=500)
+NameError: name 'stats' is not defined

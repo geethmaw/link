@@ -1,12 +1,12 @@
 # @Author: Geethma Werapitiya <wgeethma>
-# @Date:   2022-05-19T12:20:54-06:00
+# @Date:   2022-05-25T12:30:57-06:00
 # @Email:  wgeethma@uwyo.edu
 # @Last modified by:   wgeethma
-# @Last modified time: 2022-05-24T14:53:34-06:00
+# @Last modified time: 2022-05-25T14:17:47-06:00
 
 
 
-### Created on 5/18/2022 to compare gcms, observations and ppe U10 vs M oceans 30N to 70N. Using Daniel's readGCMs code to extract data from gcms.
+### Compare GCM and Obs M and U10 PDFs.
 
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -41,6 +41,9 @@ ensname = ['r11i1p1f1', 'r1i1p1f2', 'r1i1p1f1',
 ggname  = ['gn', 'gr','gn', 'gn', 'gn']
 
 l=0
+
+#marker size
+s = 120
 
 for j in range(l,len(modname)): #
 
@@ -114,13 +117,35 @@ for i in range(l,len(modname)):
 
     indx = np.isnan(xx*yy)==False
 
-    from scipy import stats
-    bin_means, bin_edges, binnumber = stats.binned_statistic(xx[indx], yy[indx], 'mean', bins=1000)
-    bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(xx[indx], xx[indx], 'mean', bins=1000)
+    #######Plot U10 vs M################
+    # from scipy import stats
+    # bin_means, bin_edges, binnumber = stats.binned_statistic(xx[indx], yy[indx], 'mean', bins=1000)
+    # bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(xx[indx], xx[indx], 'mean', bins=1000)
+    #
+    # index = np.isnan(bin_means_x*bin_means)==False
+    #
+    # plt.plot(bin_means_x[index], bin_means[index], label=modname[i], alpha=0.6)
+    ####################################
 
-    index = np.isnan(bin_means_x*bin_means)==False
+    ######## U10 PDF ##################
+    from scipy.stats import norm
+    # fig = plt.figure()
+    # plt.scatter(np.sort(yy[indx]), norm.pdf(np.sort(yy[indx])), s=s, label=modname[i])
+    # plt.legend()
+    # plt.title(modname[i]+' - U10 PDF')
+    #Change marker size
+    # s = s-20
+    ######################################
 
-    plt.plot(bin_means_x[index], bin_means[index], label=modname[i], alpha=0.6)
+    # ######## M PDF ##################
+    # from scipy.stats import norm
+    # fig = plt.figure()
+    plt.scatter(xx[indx], norm.pdf(xx[indx]), s=s, label=modname[i])
+    s = s-20
+    # # plt.legend()
+    # plt.title(modname[i]+' - M PDF')
+    # ######################################
+
 
 ## OBSERVATIONS
 import glob
@@ -270,19 +295,35 @@ yy  = plot_mac_wind[ind]
 xx_new = xx[yy>0]
 yy_new = yy[yy>0]
 
-indx = np.isnan(xx_new*yy_new)==False
-
-from scipy import stats
-bin_means, bin_edges, binnumber = stats.binned_statistic(xx_new[indx], yy_new[indx], 'mean', bins=500)
-bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(xx_new[indx], xx_new[indx], 'mean', bins=500)
-
-index = np.isnan(bin_means_x*bin_means)==False
+# indx = np.isnan(xx_new*yy_new)==False
+#
+# from scipy import stats
+# bin_means, bin_edges, binnumber = stats.binned_statistic(xx_new[indx], yy_new[indx], 'mean', bins=500)
+# bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(xx_new[indx], xx_new[indx], 'mean', bins=500)
+#
+# index = np.isnan(bin_means_x*bin_means)==False
 ##############################################
 
-#plot observations
-plt.plot(bin_means_x[index], bin_means[index], color='black' ,marker='*', linestyle='dashed',
-     markersize=5,linewidth=1, label='Observations')
+# ############plot observations
+# plt.plot(bin_means_x[index], bin_means[index], color='black' ,marker='*', linestyle='dashed',
+#      markersize=5,linewidth=1, label='Observations')
+# #################################################
 
+############observations U10 PDF############
+# from scipy.stats import norm
+# import matplotlib as mpl
+# mpl.rcParams['agg.path.chunksize'] = 10000
+# test_yy_new = np.sort(yy_new)
+# plt.scatter(test_yy_new, norm.pdf(test_yy_new), s=s, label='observations')
+##############################################
+
+############observations M PDF############
+from scipy.stats import norm
+import matplotlib as mpl
+mpl.rcParams['agg.path.chunksize'] = 10000
+test_xx_new = np.sort(xx_new)
+plt.scatter(test_xx_new, norm.pdf(test_xx_new), s=s, label='observations')
+##############################################
 
 ### PPE
 # enn = np.arange(201,251)
@@ -349,8 +390,10 @@ plt.plot(bin_means_x[index], bin_means[index], color='black' ,marker='*', linest
 
 
 plt.legend()
-plt.ylabel('U10 [m/s]',fontsize='15')
-yti = '800'
-plt.xlabel(r"M ($\Theta_{SST}$ - $\Theta_{"+yti+"})$ [K]",fontsize='15')
-plt.title('U10 vs M for oceans between '+str(latr1)+'N to '+str(latr2)+'N')
-plt.savefig('../figures/all_U10vsM_'+str(latr1)+'N to '+str(latr2)+'N_800theta.png')
+plt.title('sfcWind PDF')
+plt.savefig('../figures/caoiPDF.png')
+# plt.ylabel('U10 [m/s]',fontsize='15')
+# yti = '800'
+# plt.xlabel(r"M ($\Theta_{SST}$ - $\Theta_{"+yti+"})$ [K]",fontsize='15')
+# plt.title('U10 vs M for oceans between '+str(latr1)+'N to '+str(latr2)+'N')
+# plt.savefig('../figures/all_U10vsM_'+str(latr1)+'N to '+str(latr2)+'N_800theta.png')
