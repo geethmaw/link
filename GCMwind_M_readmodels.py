@@ -2,7 +2,7 @@
 # @Date:   2022-05-19T12:20:54-06:00
 # @Email:  wgeethma@uwyo.edu
 # @Last modified by:   wgeethma
-# @Last modified time: 2022-05-27T15:54:18-06:00
+# @Last modified time: 2022-05-27T15:56:24-06:00
 
 
 
@@ -353,4 +353,4 @@ plt.ylabel('U10 [m/s]',fontsize='15')
 yti = '800'
 plt.xlabel(r"M ($\Theta_{SST}$ - $\Theta_{"+yti+"})$ [K]",fontsize='15')
 plt.title('U10 vs M for oceans between '+str(latr1)+'N to '+str(latr2)+'N')
-# plt.savefig('../figures/GCM_U10vsM_'+str(latr1)+'N to '+str(latr2)+'N_800theta.png')
+# plt.savefig('../figures/GCMs_U10vsM_'+str(latr1)+'N to '+str(latr2)+'N_800theta.png')
