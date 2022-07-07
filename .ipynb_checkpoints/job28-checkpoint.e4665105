@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/biasVSresolution.py", line 192, in <module>
+    m=len(modname)
+NameError: name 'modname' is not defined

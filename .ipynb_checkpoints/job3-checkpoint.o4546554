@@ -1,0 +1,27 @@
+CESM2
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+CESM2-WACCM
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+HadGEM3-GC31-LL
+latitudes: length =  144 resolution =  1.25
+longitudes: length =  192 resolution =  1.875
+HadGEM3-GC31-MM
+latitudes: length =  324 resolution =  0.5555572509765625
+longitudes: length =  432 resolution =  0.8333333432674408
+IPSL-CM6A-LR
+latitudes: length =  143 resolution =  1.2676086
+longitudes: length =  144 resolution =  2.5
+CNRM-ESM2-1
+latitudes: length =  128 resolution =  1.3890301392673479
+longitudes: length =  256 resolution =  1.40625
+INM-CM5-0
+latitudes: length =  120 resolution =  1.5
+longitudes: length =  180 resolution =  2.0
+MPI-ESM1-2-HR
+latitudes: length =  192 resolution =  0.9272240138487007
+longitudes: length =  384 resolution =  0.9375
+UKESM1-0-LL
+latitudes: length =  144 resolution =  1.25
+longitudes: length =  192 resolution =  1.875

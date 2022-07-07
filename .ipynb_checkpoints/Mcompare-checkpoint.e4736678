@@ -1,0 +1,11 @@
+/glade/work/geethma/research/codes/myReadGCMsDaily.py:60: UserWarning: WARNING: missing_value not used since it
+cannot be safely cast to variable data type
+  data.extend(np.array(datai[ind1:ind2+1,:,:]))
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/Mcompare.py", line 136, in <module>
+    bin_means, bin_edges, binnumber = stats.binned_statistic(xx, yy, 'mean', bins=500)
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/scipy/stats/_binned_statistic.py", line 183, in binned_statistic
+    medians, edges, binnumbers = binned_statistic_dd(
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/scipy/stats/_binned_statistic.py", line 555, in binned_statistic_dd
+    raise AttributeError('The number of `values` elements must match the '
+AttributeError: The number of `values` elements must match the length of each `sample` dimension.

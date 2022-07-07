@@ -1,0 +1,42 @@
+CESM2
+done
+CESM2-WACCM
+done
+HadGEM3-GC31-LL
+done
+HadGEM3-GC31-MM
+done
+IPSL-CM6A-LR
+done
+CNRM-ESM2-1
+done
+INM-CM5-0
+done
+MPI-ESM1-2-HR
+done
+UKESM1-0-LL
+done
+MPI-ESM1-2-LR
+done
+MPI-ESM-1-2-HAM
+done
+CMCC-CM2-SR5
+done
+CMCC-CM2-HR4
+done
+CNRM-CM6-1
+done
+CNRM-ESM2-1
+done
+IPSL-CM5A2-INCA
+done
+CESM2
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+(364, 192, 288)
+(364, 192, 288)
+(364, 192, 288)
+(364, 192, 288)
+(364, 8, 192, 288)
+85000.0
+70000.0

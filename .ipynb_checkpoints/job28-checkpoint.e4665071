@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/biasVSresolution.py", line 209, in <module>
+    for i in range(l,m):
+NameError: name 'l' is not defined

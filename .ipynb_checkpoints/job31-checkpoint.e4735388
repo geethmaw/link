@@ -1,0 +1,9 @@
+/glade/work/geethma/research/codes/myReadGCMsDaily.py:60: UserWarning: WARNING: missing_value not used since it
+cannot be safely cast to variable data type
+  data.extend(np.array(datai[ind1:ind2+1,:,:]))
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/myreadFunctionU10vsM.py", line 56, in <module>
+    locals()[i+'__'+str(j+1)] = read_var_mod('surface', modname[j], 'historical', i, time1, time2)
+  File "/glade/work/geethma/research/codes/myReadGCMsDaily.py", line 102, in read_var_mod
+    return(lats,lons,times,lev,np.array(data))
+UnboundLocalError: local variable 'lats' referenced before assignment

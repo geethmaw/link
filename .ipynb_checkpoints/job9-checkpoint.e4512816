@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/myreadFunctionU10vsM.py", line 49, in <module>
+    locals()[i+'__'+str(j+1)] = read_var_mod('surface', modname[j], i, time1, time2)
+TypeError: read_var_mod() missing 1 required positional argument: 'time2'

@@ -1,0 +1,157 @@
+CESM2
+done
+CESM2-WACCM
+done
+HadGEM3-GC31-LL
+done
+HadGEM3-GC31-MM
+done
+IPSL-CM6A-LR
+done
+CNRM-ESM2-1
+done
+INM-CM5-0
+done
+MPI-ESM1-2-HR
+done
+UKESM1-0-LL
+done
+CMCC-CM2-SR5
+t
+done
+CMCC-CM2-HR4
+t
+done
+CNRM-CM6-1
+done
+CNRM-ESM2-1
+done
+IPSL-CM5A2-INCA
+done
+CESM2
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 8, 192, 288)
+85000.0
+70000.0
+CESM2-WACCM
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 8, 192, 288)
+85000.0
+70000.0
+HadGEM3-GC31-LL
+latitudes: length =  144 resolution =  1.25
+longitudes: length =  192 resolution =  1.875
+(1080, 144, 192)
+(1080, 144, 192)
+(1080, 144, 192)
+(1080, 8, 144, 192)
+85000.0
+70000.0
+HadGEM3-GC31-MM
+latitudes: length =  324 resolution =  0.5555572509765625
+longitudes: length =  432 resolution =  0.8333333432674408
+(1080, 324, 432)
+(1080, 324, 432)
+(1080, 324, 432)
+(1080, 8, 324, 432)
+85000.0
+70000.0
+IPSL-CM6A-LR
+latitudes: length =  143 resolution =  1.2676086
+longitudes: length =  144 resolution =  2.5
+(1095, 143, 144)
+(1095, 143, 144)
+(1095, 143, 144)
+(1095, 8, 143, 144)
+85000.0
+70000.0
+CNRM-ESM2-1
+latitudes: length =  128 resolution =  1.3890301392673479
+longitudes: length =  256 resolution =  1.40625
+(1095, 128, 256)
+(1095, 128, 256)
+(1095, 128, 256)
+(1095, 8, 128, 256)
+85000.0
+70000.0
+INM-CM5-0
+latitudes: length =  120 resolution =  1.5
+longitudes: length =  180 resolution =  2.0
+(1094, 120, 180)
+(1094, 120, 180)
+(1094, 120, 180)
+(1094, 8, 120, 180)
+85000.0
+70000.0
+MPI-ESM1-2-HR
+latitudes: length =  192 resolution =  0.9272240138487007
+longitudes: length =  384 resolution =  0.9375
+(1095, 192, 384)
+(1095, 192, 384)
+(1095, 192, 384)
+(1095, 8, 192, 384)
+85000.0
+70000.0
+UKESM1-0-LL
+latitudes: length =  144 resolution =  1.25
+longitudes: length =  192 resolution =  1.875
+(1080, 144, 192)
+(1080, 144, 192)
+(1080, 144, 192)
+(1080, 8, 144, 192)
+85000.0
+70000.0
+CMCC-CM2-SR5
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 8, 192, 288)
+85000.0
+70000.0
+CMCC-CM2-HR4
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 8, 192, 288)
+85000.0
+70000.0
+CNRM-CM6-1
+latitudes: length =  128 resolution =  1.3890301392673479
+longitudes: length =  256 resolution =  1.40625
+(1095, 128, 256)
+(1095, 128, 256)
+(1095, 128, 256)
+(1095, 8, 128, 256)
+85000.0
+70000.0
+CNRM-ESM2-1
+latitudes: length =  128 resolution =  1.3890301392673479
+longitudes: length =  256 resolution =  1.40625
+(1095, 128, 256)
+(1095, 128, 256)
+(1095, 128, 256)
+(1095, 8, 128, 256)
+85000.0
+70000.0
+IPSL-CM5A2-INCA
+latitudes: length =  96 resolution =  1.8947372
+longitudes: length =  96 resolution =  3.75
+(1094, 96, 96)
+(1094, 96, 96)
+(1094, 96, 96)
+(1094, 19, 96, 96)
+92500.0
+85000.0
+800.0

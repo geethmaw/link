@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/biasVSresolution.py", line 210, in <module>
+    lat  = locals()['sfcWind__'+str(i+1)][0]
+KeyError: 'sfcWind__1'

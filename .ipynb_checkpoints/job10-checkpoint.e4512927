@@ -1,0 +1,11 @@
+/glade/work/geethma/research/codes/myReadGCMsDaily.py:52: UserWarning: WARNING: missing_value not used since it
+cannot be safely cast to variable data type
+  data.extend(np.array(datai[ind1:ind2+1,:,:]))
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/myreadFunctionU10vsM.py", line 52, in <module>
+    locals()[k+'__'+str(j+1)] = read_var_mod('p_level', modname[j], 'historical', k, time1, time2)
+  File "/glade/work/geethma/research/codes/myReadGCMsDaily.py", line 21, in read_var_mod
+    f      = nc.Dataset(fn[i])
+  File "src/netCDF4/_netCDF4.pyx", line 2307, in netCDF4._netCDF4.Dataset.__init__
+  File "src/netCDF4/_netCDF4.pyx", line 1925, in netCDF4._netCDF4._ensure_nc_success
+OSError: [Errno -101] NetCDF: HDF error: b'/glade/scratch/geethma/cmip6/p_level/CMIP6.CMIP.CCCma.CanESM5.historical.r10i1p1f1.day.ta.gn.v20190429.ta_day_CanESM5_historical_r10i1p1f1_gn_18500101-18601231.nc.part'

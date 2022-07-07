@@ -1,0 +1,22 @@
+Lmod has detected the following error: Cannot load module "conda/latest"
+because these module(s) are loaded:
+   python
+
+While processing the following module(s):
+    Module fullname  Module Filename
+    ---------------  ---------------
+    conda/latest     /glade/u/apps/ch/modulefiles/default/idep/conda/latest.lua
+
+Lmod has detected the following error: Cannot load module "conda/latest"
+because these module(s) are loaded:
+   python
+
+While processing the following module(s):
+    Module fullname  Module Filename
+    ---------------  ---------------
+    conda/latest     /glade/u/apps/ch/modulefiles/default/idep/conda/latest.lua
+
+/glade/work/geethma/research/codes/myReadGCMsDaily.py:60: UserWarning: WARNING: missing_value not used since it
+cannot be safely cast to variable data type
+  data.extend(np.array(datai[ind1:ind2+1,:,:]))
+/var/spool/pbs/mom_priv/jobs/4897561.chadmin1.ib0.cheyenne.ucar.edu.SC: line 18: 42072 Bus error               python regridded_U10vsM_GCM_OBS.py

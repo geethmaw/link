@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/biasVSresolution.py", line 128, in <module>
+    theta_800 = np.array(np.multiply(temp[:,p_level,:,:], (100000/(merlev[p_level]*100))**(Rd/Cp)))
+NameError: name 'p_level' is not defined

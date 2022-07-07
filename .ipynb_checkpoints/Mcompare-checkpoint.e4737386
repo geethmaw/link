@@ -1,0 +1,8 @@
+/glade/work/geethma/research/codes/myReadGCMsDaily.py:60: UserWarning: WARNING: missing_value not used since it
+cannot be safely cast to variable data type
+  data.extend(np.array(datai[ind1:ind2+1,:,:]))
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/Mcompare.py", line 129, in <module>
+    xx = np.sort(plot_theta_sfc, reverse=True)
+  File "<__array_function__ internals>", line 179, in sort
+TypeError: _sort_dispatcher() got an unexpected keyword argument 'reverse'

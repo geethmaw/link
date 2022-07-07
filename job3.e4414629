@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/glade/work/geethma/research/codes/U10_M_link.py", line 233, in <module>
-    theta_800 = np.array(np.multiply(temp[:,p_level,:,:], (100000/(merlev[p_level]*100))**(Rd/Cp)))
-NameError: name 'p_level' is not defined

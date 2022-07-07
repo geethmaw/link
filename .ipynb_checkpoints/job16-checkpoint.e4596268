@@ -1,0 +1,4 @@
+/glade/work/geethma/research/codes/myReadGCMsDaily.py:60: UserWarning: WARNING: missing_value not used since it
+cannot be safely cast to variable data type
+  data.extend(np.array(datai[ind1:ind2+1,:,:]))
+/var/spool/pbs/mom_priv/jobs/4596268.chadmin1.ib0.cheyenne.ucar.edu.SC: line 18: 51465 Bus error               python myreadFunctionU10vsM.py

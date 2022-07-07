@@ -1,0 +1,7 @@
+/glade/work/geethma/research/codes/myReadGCMsDaily.py:60: UserWarning: WARNING: missing_value not used since it
+cannot be safely cast to variable data type
+  data.extend(np.array(datai[ind1:ind2+1,:,:]))
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/myreadFunctionU10vsM.py", line 286, in <module>
+    plot_wind[:,:,180:360] = wind_test[:,:,0:180]
+ValueError: could not broadcast input array from shape (1096,50,180) into shape (1081,50,180)

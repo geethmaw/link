@@ -1,0 +1,35 @@
+CESM2
+variable retrieving done
+CESM2-WACCM
+variable retrieving done
+HadGEM3-GC31-LL
+variable retrieving done
+HadGEM3-GC31-MM
+variable retrieving done
+IPSL-CM6A-LR
+variable retrieving done
+CNRM-ESM2-1
+variable retrieving done
+INM-CM5-0
+variable retrieving done
+MPI-ESM1-2-HR
+variable retrieving done
+UKESM1-0-LL
+variable retrieving done
+CMCC-CM2-SR5
+variable retrieving done
+CMCC-CM2-HR4
+variable retrieving done
+CNRM-CM6-1
+variable retrieving done
+CNRM-ESM2-1
+variable retrieving done
+IPSL-CM5A2-INCA
+variable retrieving done
+CESM2
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+85000.0
+70000.0
+2732491
+2729996

@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/glade/work/geethma/research/codes/GCMwind_M_readmodels.py", line 55, in <module>
-    lat  = locals()['sfcWind__'+str(i+1)][2]
-KeyError: 'sfcWind__5'

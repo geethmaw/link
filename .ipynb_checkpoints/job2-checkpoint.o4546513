@@ -1,0 +1,54 @@
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 8, 192, 288)
+latitudes: length =  192 resolution =  0.9424083769633569
+longitudes: length =  288 resolution =  1.25
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 192, 288)
+(1094, 8, 192, 288)
+latitudes: length =  144 resolution =  1.25
+longitudes: length =  192 resolution =  1.875
+(1080, 144, 192)
+(1080, 144, 192)
+(1080, 144, 192)
+(1080, 8, 144, 192)
+latitudes: length =  324 resolution =  0.5555572509765625
+longitudes: length =  432 resolution =  0.8333333432674408
+(1080, 324, 432)
+(1080, 324, 432)
+(1080, 324, 432)
+(1080, 8, 324, 432)
+latitudes: length =  143 resolution =  1.2676086
+longitudes: length =  144 resolution =  2.5
+(1095, 143, 144)
+(1095, 143, 144)
+(1095, 143, 144)
+(1095, 8, 143, 144)
+latitudes: length =  128 resolution =  1.3890301392673479
+longitudes: length =  256 resolution =  1.40625
+(1095, 128, 256)
+(1095, 128, 256)
+(1095, 128, 256)
+(1095, 8, 128, 256)
+latitudes: length =  120 resolution =  1.5
+longitudes: length =  180 resolution =  2.0
+(1094, 120, 180)
+(1094, 120, 180)
+(1094, 120, 180)
+(1094, 8, 120, 180)
+latitudes: length =  192 resolution =  0.9272240138487007
+longitudes: length =  384 resolution =  0.9375
+(1095, 192, 384)
+(1095, 192, 384)
+(1095, 192, 384)
+(1095, 8, 192, 384)
+latitudes: length =  144 resolution =  1.25
+longitudes: length =  192 resolution =  1.875
+(1080, 144, 192)
+(1080, 144, 192)
+(1080, 144, 192)
+(1080, 8, 144, 192)

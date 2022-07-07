@@ -1,0 +1,33 @@
+Traceback (most recent call last):
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/file_manager.py", line 199, in _acquire_with_cache_info
+    file = self._cache[self._key]
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/lru_cache.py", line 53, in __getitem__
+    value = self._cache[key]
+KeyError: [<class 'netCDF4._netCDF4.Dataset'>, ('/glade/campaign/cgd/projects/ppe/cam_ppe/rerun_PPE_250/PD/PD_timeseries/PPE_250_ensemble_PD.201/atm/hist/cc_PPE_250_ensemble_PD.201.h1.U10.nc',), 'r', (('clobber', True), ('diskless', False), ('format', 'NETCDF4'), ('persist', False))]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/glade/work/geethma/research/codes/testPPE.py", line 17, in <module>
+    data =xr.open_dataset(d_path)
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/api.py", line 495, in open_dataset
+    backend_ds = backend.open_dataset(
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/netCDF4_.py", line 550, in open_dataset
+    store = NetCDF4DataStore.open(
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/netCDF4_.py", line 379, in open
+    return cls(manager, group=group, mode=mode, lock=lock, autoclose=autoclose)
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/netCDF4_.py", line 327, in __init__
+    self.format = self.ds.data_model
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/netCDF4_.py", line 388, in ds
+    return self._acquire()
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/netCDF4_.py", line 382, in _acquire
+    with self._manager.acquire_context(needs_lock) as root:
+  File "/ncar/usr/jupyterhub.hpc.ucar.edu/jupyterhub-20211213/lib/python3.9/contextlib.py", line 119, in __enter__
+    return next(self.gen)
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/file_manager.py", line 187, in acquire_context
+    file, cached = self._acquire_with_cache_info(needs_lock)
+  File "/glade/u/home/geethma/.local/lib/python3.9/site-packages/xarray/backends/file_manager.py", line 205, in _acquire_with_cache_info
+    file = self._opener(*self._args, **kwargs)
+  File "src/netCDF4/_netCDF4.pyx", line 2307, in netCDF4._netCDF4.Dataset.__init__
+  File "src/netCDF4/_netCDF4.pyx", line 1925, in netCDF4._netCDF4._ensure_nc_success
+FileNotFoundError: [Errno 2] No such file or directory: b'/glade/campaign/cgd/projects/ppe/cam_ppe/rerun_PPE_250/PD/PD_timeseries/PPE_250_ensemble_PD.201/atm/hist/cc_PPE_250_ensemble_PD.201.h1.U10.nc'

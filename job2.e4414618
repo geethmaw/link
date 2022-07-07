@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/glade/work/geethma/research/codes/GCMwind_M_readmodels.py", line 48, in <module>
-    locals()[i+'__'+str(j+1)] = read_var_mod(modn=modname[j], consort=conname[j], varnm=i, cmip='cmip6', exper='historical', ensmem=ensname[j], typevar='day', gg=ggname[j], read_p=False, time1=[2009, 12, 1], time2=[2012, 12, 31])
-  File "/glade/work/geethma/research/codes/readGCMs.py", line 34, in read_var_mod
-    data, P, lat, lon, time = read_hs(
-  File "/glade/work/geethma/research/codes/readGCMs.py", line 73, in read_hs
-    fn = glob.glob(folder[0]+'/*'+varnm+'_*'+typevar+'*' +
-IndexError: list index out of range
