@@ -3,13 +3,14 @@
 # @Project: Research
 # @Filename: regridded_BiasVsResolution.py
 # @Last modified by:   wgeethma
-# @Last modified time: 2022-07-06T14:19:53-06:00
+# @Last modified time: 2022-07-12T15:44:58-06:00
 
 import xarray as xr
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.cm import get_cmap
 from myReadGCMsDaily import read_var_mod
+from highres_read.py import read_var_hires
 import calendar
 from global_land_mask import globe
 import glob
@@ -47,12 +48,18 @@ modname = ['CESM2','CESM2-FV2','CESM2-WACCM','CMCC-CM2-HR4','CMCC-CM2-SR5','CMCC
 'HadGEM3-GC31-LL','HadGEM3-GC31-MM','INM-CM4-8','INM-CM5-0','IPSL-CM5A2-INCA','IPSL-CM6A-LR','MPI-ESM-1-2-HAM',
 'MPI-ESM1-2-HR','MPI-ESM1-2-LR','NorESM2-MM','UKESM1-0-LL']
 
+hiresmd = ['MRI-AGCM3-2-H']
+
 varname = ['sfcWind','tas','psl'] #'sfcWind', 'hfss', 'hfls', 'tas', 'ps', 'psl',,'pr'
 pvarname= ['ta']
 
-use_colors = ['rosybrown','goldenrod','teal','blue','hotpink','green','red','cyan','magenta','cornflowerblue','mediumpurple','blueviolet',
-'deeppink','lawngreen','coral','peru','salmon','burlywood','rosybrown','goldenrod','teal','blue','hotpink','green','red','cyan','magenta','yellow','cornflowerblue','mediumpurple','blueviolet',
-'deeppink','lawngreen','coral','peru','salmon','burlywood']
+# use_colors = ['rosybrown','goldenrod','teal','blue','hotpink','green','red','cyan','magenta','cornflowerblue','mediumpurple','blueviolet',
+# 'deeppink','lawngreen','coral','peru','salmon','burlywood','rosybrown','goldenrod','teal','blue','hotpink','green','red','cyan','magenta','yellow','cornflowerblue','mediumpurple','blueviolet',
+# 'deeppink','lawngreen','coral','peru','salmon','burlywood']
+
+use_colors = ['#88CCEE','#CC6677','#117733','#332288','#AA4499','#44AA99','#999933','#882255','#661100','#6699CC','#888888','#e6194b',
+'#3cb44b','#0082c8','#f58231','#911eb4','#46f0f0','#f032e6','#d2f53c','#fabebe','#008080','#e6beff','#aa6e28','#fffac8','#800000','#aaffc3',
+'#808000','#ffd8b1','#000080','#808080','#ffffff','#000000'] #'#ffe119', ,'#DDCC77'
 
 l = 0
 m = len(modname)   #l+1
@@ -247,36 +254,44 @@ for j in range(l,m):
         # print(k)
     print('done')
 
+for j in range(0,len(hiresmd)):
+    print(hiresmd[j])
+    for i in varname:
+        locals()[i+'__'+str(j+1+m)] = read_var_hires('surface', modname[j], 'highresSST-present', i, time1, time2)
+
+    for k in pvarname:
+        locals()[k+'__'+str(j+1+m)] = read_var_hires('p_level', modname[j], 'highresSST-present', k, time1, time2)
+
+
 M_700_G = []
 W_SFC_G = []
 b_coun  = []
 g_res   = []
 
-for i in range(l,m):
-
-    lat  = locals()['tas__'+str(i+1)][0]
-    lon  = locals()['tas__'+str(i+1)][1]
-    time = locals()['tas__'+str(i+1)][2]
-
-    x_lat = np.array(lat)
-    lat_ind1 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr1)).argmin()])[0]
-    lat_ind2 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr2)).argmin()])[0]
-    lats = lat[lat_ind1[0]:lat_ind2[0]]
-
-    x_lon = lon
-    lon = np.array(lon)
-    lon[lon > 180] = lon[lon > 180]-360
-
-    maskm = np.ones((len(time),len(lats),len(lon)))
-
-    for a in range(len(lats)):
-        for b in range(len(lon)):
-            if globe.is_land(lats[a], lon[b])==True:
-                maskm[:,a,b] = math.nan
-
+for i in range(l,m+len(hiresmd)):
     print(modname[i])
 
     for j in varname:
+        lat  = locals()[j+'__'+str(i+1)][0]
+        lon  = locals()[j+'__'+str(i+1)][1]
+        time = locals()[j+'__'+str(i+1)][2]
+
+        x_lat = np.array(lat)
+        lat_ind1 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr1)).argmin()])[0]
+        lat_ind2 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr2)).argmin()])[0]
+        lats = lat[lat_ind1[0]:lat_ind2[0]]
+
+        x_lon = lon
+        lon = np.array(lon)
+        lon[lon > 180] = lon[lon > 180]-360
+
+        maskm = np.ones((len(time),len(lats),len(lon)))
+
+        for a in range(len(lats)):
+            for b in range(len(lon)):
+                if globe.is_land(lats[a], lon[b])==True:
+                    maskm[:,a,b] = math.nan
+        print(j)
         locals()[j+str(i+1)] = locals()[j+'__'+str(i+1)][4]
         locals()[j+str(i+1)] = np.ma.filled(locals()[j+str(i+1)], fill_value=np.nan)
         locals()['plot_'+j+str(i+1)] = np.array(np.multiply(maskm,locals()[j+str(i+1)][:,lat_ind1[0]:lat_ind2[0],:]))
@@ -285,20 +300,40 @@ for i in range(l,m):
 
 
     for k in pvarname:
+        print(k)
+        lat  = locals()[k+'__'+str(i+1)][0]
+        lon  = locals()[k+'__'+str(i+1)][1]
+        time = locals()[k+'__'+str(i+1)][2]
+
+        x_lat = np.array(lat)
+        lat_ind1 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr1)).argmin()])[0]
+        lat_ind2 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr2)).argmin()])[0]
+        lats = lat[lat_ind1[0]:lat_ind2[0]]
+
+        x_lon = lon
+        lon = np.array(lon)
+        lon[lon > 180] = lon[lon > 180]-360
+
+        maskm = np.ones((len(time),len(lats),len(lon)))
+
+        for a in range(len(lats)):
+            for b in range(len(lon)):
+                if globe.is_land(lats[a], lon[b])==True:
+                    maskm[:,a,b] = math.nan
         locals()['plot_levels'+str(i+1)] = locals()['ta__'+str(i+1)][3]
         locals()['grid_'+k+str(i+1)] = []
 
         levels = locals()['plot_levels'+str(i+1)]
 
         for p in range(len(levels)):
-            print(levels[p])
             if levels[p] == 70000:
-                print('if ',levels[p])
+                print(levels[p])
                 locals()[k+str(i+1)] = locals()[k+'__'+str(i+1)][4]
                 locals()[k+str(i+1)] = np.ma.filled(locals()[k+str(i+1)], fill_value=np.nan)
                 temp_700   = np.array(np.multiply(maskm,locals()[k+str(i+1)][:,p,lat_ind1[0]:lat_ind2[0],:]))
                 grid_t_700 = regrid_wght_wnans(lats,lon,temp_700,lats_edges,lons_edges)[0]
                 break;
+
 
     theta_700 = grid_t_700*(100000/70000)**con
     theta_t2m = locals()['grid_tas'+str(i+1)]*(100000/locals()['grid_psl'+str(i+1)])**con
@@ -313,7 +348,7 @@ for i in range(l,m):
     final_W = plot_W[ind]
 
     indx = np.isnan(final_M*final_W)==False
-    
+
     bin_means_WG, bin_edges_WG, binnumber_WG = stats.binned_statistic(final_M[indx], final_W[indx], 'mean', bins=n_bins,range=M_range)
     bin_means_CG, bin_edges_CG, binnumber_CG = stats.binned_statistic(final_M[indx], final_W[indx], 'count', bins=n_bins,range=M_range)
     bin_means_MG, bin_edges_MG, binnumber_MG = stats.binned_statistic(final_M[indx], final_M[indx], 'mean', bins=n_bins,range=M_range)
@@ -326,7 +361,7 @@ for i in range(l,m):
     M_700_G.append(np.ma.masked_invalid(bin_means_MG[ind_c])) #[ind_c]
     W_SFC_G.append(np.ma.masked_invalid(bin_means_WG[ind_c]))
     b_coun.append(len(M_700_G[i]))
-    
+
     g_lat_diff = np.abs(x_lat[1]-x_lat[0])
     g_lon_diff = np.abs(x_lon[1]-x_lon[0])
     g_res.append((np.sqrt(g_lat_diff**2 + g_lon_diff**2)) * 110.574)
@@ -339,7 +374,7 @@ for i in range(l,m):
 
     plt.scatter(g_res[i],mean_bias,label=modname[i],color=use_colors[i])
     plt.annotate(xy=(g_res[i]+0.03,mean_bias+0.03), text=modname[i], color=use_colors[i],fontsize=9)
-    print(modname[i])
+    # print(modname[i])
     print(g_res[i])
 
 #############PLOT###############
@@ -347,4 +382,4 @@ for i in range(l,m):
 plt.ylabel('U10 Bias [m/s]')
 plt.xlabel('Resolution [km]')
 plt.title('for oceans between '+str(latr1)+'N to '+str(latr2)+'N/nfor M>0')
-plt.savefig('../figures/new_final_BiasVsRes'+str(latr1)+'N to '+str(latr2)+'N.png')
+plt.savefig('../figures/new2_final_BiasVsRes'+str(latr1)+'N to '+str(latr2)+'N.png')

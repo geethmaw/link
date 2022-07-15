@@ -18,10 +18,10 @@ pp_path_scratch='/glade/scratch/geethma/cmip6'
 # level = 'surface'/'p_level'
 # modn='CESM2', exper='historical', varnm='sfcWind',time1=[2010, 1, 1],time2=[2012, 12, 30]
 
-def read_var_mod(level, modn, exper, varnm, time1, time2):
+def read_amip_var(level, modn, exper, varnm, time1, time2):
     path   = pp_path_scratch+'/'+level+'/'
 
-    ncname = 'CMIP6.*'+modn+'*'+exper+'*'+varnm
+    ncname = varnm+'_*'+modn+'*'+exper+'*'
 
     fn     = np.sort(glob.glob(path+ncname+'*nc*'))
     #print(len(fn))
@@ -65,10 +65,6 @@ def read_var_mod(level, modn, exper, varnm, time1, time2):
             lats    = f.variables['lat']
             lons    = f.variables['lon']
             times.extend(timeout[ind1:ind2+1])
-            #print('start day:')
-            #print(timeout[ind1])
-            #print('last day:')
-            #print(timeout[ind2])
             datai = f.variables[varnm]
             data.extend(np.array(datai[ind1:ind2+1,:,:]))
             break
@@ -79,8 +75,6 @@ def read_var_mod(level, modn, exper, varnm, time1, time2):
             lats    = f.variables['lat']
             lons    = f.variables['lon']
             times.extend(timeout[ind1:])
-            #print('start day:')
-            #print(timeout[ind1])
             datai = f.variables[varnm]
             data.extend(np.array(f.variables[varnm][ind1:,:,:]))
 
@@ -101,15 +95,13 @@ def read_var_mod(level, modn, exper, varnm, time1, time2):
             lats    = f.variables['lat']
             lons    = f.variables['lon']
             times.extend(timeout[:ind2+1])
-            #print('last day:')
-            #print(timeout[ind2])
             datai = f.variables[varnm]
             data.extend(np.array(f.variables[varnm][:ind2+1,:,:]))
             break
 
 
         if times:
-            #print('t')
+            print('t')
             if times[0]<time1:
                 print('invalid start date')
 

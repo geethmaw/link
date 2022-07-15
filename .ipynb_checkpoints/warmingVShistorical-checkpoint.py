@@ -1,8 +1,8 @@
 # @Author: Geethma Werapitiya <wgeethma>
 # @Date:   2022-07-07T12:32:52-06:00
 # @Email:  wgeethma@uwyo.edu
-# @Last modified by:   wgeethma
-# @Last modified time: 2022-07-12T14:40:45-06:00
+# @Last modified by:   geethmawerapitiya
+# @Last modified time: 2022-07-08T04:01:53-06:00
 
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -49,7 +49,7 @@ use_colors = ['#88CCEE','#CC6677','#117733','#332288','#AA4499','#44AA99','#9999
 '#808000','#ffd8b1','#000080','#808080','#ffffff','#000000'] #'#ffe119', ,'#DDCC77'
 
 warming_modname = ['CESM2','CESM2-FV2','CESM2-WACCM','CMCC-CM2-SR5','CMCC-ESM2','CNRM-CM6-1','CNRM-ESM2-1',
-'HadGEM3-GC31-LL','HadGEM3-GC31-MM','IPSL-CM6A-LR','INM-CM4-8','INM-CM5-0'] #'CMCC-CM2-HR4',
+'HadGEM3-GC31-LL','HadGEM3-GC31-MM','IPSL-CM6A-LR'] #'CMCC-CM2-HR4',
 varname         = ['sfcWind', 'tas','psl'] #'sfcWind', 'hfss', 'hfls', 'tas', 'ps', 'psl',,'pr'
 pvarname        = ['ta']
 
@@ -89,27 +89,29 @@ print('historical done')
 #historical models
 for i in range(l,m):
 
+    lat  = locals()['hist_sfcWind__'+str(i+1)][0]
+    lon  = locals()['hist_sfcWind__'+str(i+1)][1]
+    time = locals()['hist_sfcWind__'+str(i+1)][2]
+
+    x_lat = np.array(lat)
+    lat_ind1 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr1)).argmin()])[0]
+    lat_ind2 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr2)).argmin()])[0]
+    lats = lat[lat_ind1[0]:lat_ind2[0]]
+
+    x_lon = lon
+    lon = np.array(lon)
+    lon[lon > 180] = lon[lon > 180]-360
+
+    maskm = np.ones((len(time),len(lats),len(lon)))
+
+    for a in range(len(lats)):
+        for b in range(len(lon)):
+            if globe.is_land(lats[a], lon[b])==True:
+                maskm[:,a,b] = math.nan
+
+    print(warming_modname[i])
+
     for j in varname:
-        lat  = locals()['hist_'+j+'__'+str(i+1)][0]
-        lon  = locals()['hist_'+j+'__'+str(i+1)][1]
-        time = locals()['hist_'+j+'__'+str(i+1)][2]
-
-        x_lat = np.array(lat)
-        lat_ind1 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr1)).argmin()])[0]
-        lat_ind2 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr2)).argmin()])[0]
-        lats = lat[lat_ind1[0]:lat_ind2[0]]
-
-        x_lon = lon
-        lon = np.array(lon)
-        lon[lon > 180] = lon[lon > 180]-360
-
-        maskm = np.ones((len(time),len(lats),len(lon)))
-
-        for a in range(len(lats)):
-            for b in range(len(lon)):
-                if globe.is_land(lats[a], lon[b])==True:
-                    maskm[:,a,b] = math.nan
-        print(j)
         locals()[j+str(i+1)] = locals()['hist_'+j+'__'+str(i+1)][4]
         locals()[j+str(i+1)] = np.ma.filled(locals()[j+str(i+1)], fill_value=np.nan)
         locals()['plot_'+j+str(i+1)] = np.array(np.multiply(maskm,locals()[j+str(i+1)][:,lat_ind1[0]:lat_ind2[0],:]))
@@ -118,26 +120,6 @@ for i in range(l,m):
 
 
     for k in pvarname:
-        print(k)
-        lat  = locals()['hist_'+k+'__'+str(i+1)][0]
-        lon  = locals()['hist_'+k+'__'+str(i+1)][1]
-        time = locals()['hist_'+k+'__'+str(i+1)][2]
-
-        x_lat = np.array(lat)
-        lat_ind1 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr1)).argmin()])[0]
-        lat_ind2 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr2)).argmin()])[0]
-        lats = lat[lat_ind1[0]:lat_ind2[0]]
-
-        x_lon = lon
-        lon = np.array(lon)
-        lon[lon > 180] = lon[lon > 180]-360
-
-        maskm = np.ones((len(time),len(lats),len(lon)))
-
-        for a in range(len(lats)):
-            for b in range(len(lon)):
-                if globe.is_land(lats[a], lon[b])==True:
-                    maskm[:,a,b] = math.nan
         locals()['plot_levels'+str(i+1)] = locals()['hist_ta__'+str(i+1)][3]
         locals()['grid_'+k+str(i+1)] = []
 
@@ -152,14 +134,13 @@ for i in range(l,m):
                 grid_t_700 = regrid_wght_wnans(lats,lon,temp_700,lats_edges,lons_edges)[0]
                 break;
 
+
     theta_700 = grid_t_700*(100000/70000)**con
     theta_t2m = locals()['grid_tas'+str(i+1)]*(100000/locals()['grid_psl'+str(i+1)])**con
 
-    t = min(len(theta_t2m),len(theta_700))
-    M_700  = theta_t2m[0:t,:,:] - theta_700[0:t,:,:]
+    M_700  = theta_t2m - theta_700
     plot_M = M_700.flatten()
-    try_W  = locals()['grid_sfcWind'+str(i+1)][0:t,:,:]
-    plot_W = try_W.flatten()
+    plot_W = locals()['grid_sfcWind'+str(i+1)].flatten()
 
     ind = np.argsort(plot_M)
 
@@ -284,4 +265,4 @@ plt.annotate(xy=(10,10), text='1-1', color='black',fontsize=7)
 yti = '700'
 plt.xlabel('Historical U10 [m/s]')
 plt.title('U10 comparison for historical and warming scenarios\nin cold air outbreaks')
-plt.savefig('../figures/new_U10_warmingVShistorical_20Bins.png')
+plt.savefig('../figures/U10_warmingVShistorical_20Bins.png')

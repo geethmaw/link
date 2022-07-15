@@ -1,10 +1,11 @@
 # @Author: Geethma Werapitiya <wgeethma>
 # @Date:   2022-07-05T09:54:01-06:00
 # @Email:  wgeethma@uwyo.edu
-# @Last modified by:   wgeethma
-# @Last modified time: 2022-07-05T13:03:54-06:00
+# @Last modified by:   geethmawerapitiya
+# @Last modified time: 2022-07-08T02:14:04-06:00
 
 ## Compare M computed by SST and 800hPa with 2m and 700hPa for OBSERVATIONS
+## Updated 700hPa to 850hPa   p_level_700 = 0  ### 850hPa and t2m   CAOI_700  = np.array(np.subtract(theta_t2m,theta_700))
 
 
 import xarray as xr
@@ -21,7 +22,7 @@ from regrid_wght_3d import regrid_wght_wnans
 import matplotlib as mpl
 mpl.rcParams['figure.dpi'] = 100
 plt.clf()
-plt.rcParams['figure.figsize'] = (12.0/2.5, 8.0/2.5)
+plt.rcParams['figure.figsize'] = (12.0/2.5, 12.0/2.5)
 
 plt.style.use('seaborn-whitegrid')
 
@@ -36,7 +37,7 @@ latr2 = 80
 
 #pressure levels in observations
 p_level_800 = 1  ### 800hPa
-p_level_700 = 3  ### 700hPa
+p_level_700 = 0  ### 850hPa
 
 time1=[2010, 1, 1]
 time2=[2012, 12, 30]
@@ -158,14 +159,17 @@ plot_indx = np.isnan(plot_CAOI_800*plot_CAOI_700)==False
 from scipy import stats
 bin_means, bin_edges, binnumber       = stats.binned_statistic(plot_CAOI_800[plot_indx], plot_CAOI_700[plot_indx], 'mean', bins=100, range=(-30,20))
 bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(plot_CAOI_800[plot_indx], plot_CAOI_800[plot_indx], 'mean', bins=100, range=(-30,20))
+bin_means_c, bin_edges_c, binnumber_c = stats.binned_statistic(plot_CAOI_800[plot_indx], plot_CAOI_700[plot_indx], 'count', bins=100,range=(-30,20))
 
-M_800 = np.ma.masked_invalid(bin_means_x)
-M_700 = np.ma.masked_invalid(bin_means)
+ind_c = np.where(bin_means_c > 1500)
+
+M_800 = np.ma.masked_invalid(bin_means_x[ind_c])
+M_700 = np.ma.masked_invalid(bin_means[ind_c])
 
 corr = np.ma.corrcoef(M_800, M_700)
-plt.plot(M_800, M_700, label='observations: cor-coef: '+str(np.round(corr[0,1],10)))
+plt.plot(M_800, M_700, label='observations: cor-coef: '+str(np.round(corr[0,1],10)), color="#117733")
 
-plt.plot([-30,20], [-30,20], linestyle='--', color='red',label='1-1')
+plt.plot([-30,15], [-30,15], linestyle='--', color='red',label='1-1')
 
 x1_vals = np.abs(M_800-0)
 x1      = np.where(x1_vals==np.min(x1_vals))[0][0]
@@ -177,8 +181,8 @@ plt.fill_betweenx(M_700[x1:x2], np.repeat(-30, x2-x1), M_800[x1:x2] ,color ='red
 plt.legend()
 plt.xlabel('SST, 800hPa')
 # yti = str(merlev[p_level])
-plt.title('Stability matrix comparison\nfor Observations')
-plt.ylabel("t2m, 700hPa")
-plt.savefig('../figures/MforOBS.png')
+plt.title('Stability matrix comparison\nfor Observations',fontsize=7)
+plt.ylabel("t2m, 850hPa")
+plt.savefig('../figures/850_t2m_MforOBS.png')
 
 # index = np.isnan(bin_means_x*bin_means)==False

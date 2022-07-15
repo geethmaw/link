@@ -1,8 +1,8 @@
 # @Author: Geethma Werapitiya <wgeethma>
 # @Date:   2022-06-03T14:04:12-06:00
 # @Email:  wgeethma@uwyo.edu
-# @Last modified by:   wgeethma
-# @Last modified time: 2022-06-23T12:20:37-06:00
+# @Last modified by:   geethmawerapitiya
+# @Last modified time: 2022-07-08T03:08:17-06:00
 
 
 
@@ -18,7 +18,15 @@ import calendar
 from global_land_mask import globe
 import glob
 import math
-import scipy.stats as stats
+from regrid_wght_3d import regrid_wght_wnans
+from scipy import stats
+import os
+import netCDF4 as nc
+
+import matplotlib as mpl
+mpl.rcParams['figure.dpi'] = 100
+plt.clf()
+plt.rcParams['figure.figsize'] = (15.0/2.5, 15.0/2.5)
 
 #####Constants
 Cp = 1004           #J/kg/K
@@ -29,12 +37,25 @@ con= Rd/Cp
 latr1 = 30
 latr2 = 80
 
-#pressure levels
-p_level = 1 ### 800hPa in MERRA2
+#pressure levels in observations
+p_level_700 = 3  ### 700hPa
+
+# use_colors = ['rosybrown','goldenrod','teal','blue','hotpink','green','red','cyan','magenta','cornflowerblue','mediumpurple','blueviolet',
+# 'deeppink','lawngreen','coral','peru','salmon','burlywood','rosybrown','goldenrod','teal','blue','hotpink','green','red','cyan','magenta','yellow','cornflowerblue','mediumpurple','blueviolet',
+# 'deeppink','lawngreen','coral','peru','salmon','burlywood']
+
+use_colors = ['#88CCEE','#CC6677','#117733','#332288','#AA4499','#44AA99','#999933','#882255','#661100','#6699CC','#888888','#e6194b',
+'#3cb44b','#0082c8','#f58231','#911eb4','#46f0f0','#f032e6','#d2f53c','#fabebe','#008080','#e6beff','#aa6e28','#fffac8','#800000','#aaffc3',
+'#808000','#ffd8b1','#000080','#808080','#ffffff','#000000'] #'#ffe119', ,'#DDCC77'
 
 ### GCM
-modname = ['CESM2','CESM2-WACCM','HadGEM3-GC31-LL','HadGEM3-GC31-MM','IPSL-CM6A-LR','CNRM-ESM2-1','INM-CM5-0','MPI-ESM1-2-HR','UKESM1-0-LL','CMCC-CM2-SR5','CMCC-CM2-HR4','CNRM-CM6-1','CNRM-ESM2-1','IPSL-CM5A2-INCA']
-varname = ['sfcWind', 'ts','psl'] #'sfcWind', 'hfss', 'hfls', 'tas', 'ps', 'psl',,'pr'
+# modname = ['CESM2','CESM2-WACCM','HadGEM3-GC31-LL','HadGEM3-GC31-MM','IPSL-CM6A-LR','CNRM-ESM2-1','INM-CM5-0','MPI-ESM1-2-HR','UKESM1-0-LL','CMCC-CM2-SR5','CMCC-CM2-HR4','CNRM-CM6-1','CNRM-ESM2-1','IPSL-CM5A2-INCA','MPI-ESM1-2-LR','MPI-ESM-1-2-HAM']
+
+modname = ['CESM2','CESM2-FV2','CESM2-WACCM','CMCC-CM2-HR4','CMCC-CM2-SR5','CMCC-ESM2','CNRM-CM6-1','CNRM-ESM2-1',
+'HadGEM3-GC31-LL','HadGEM3-GC31-MM','INM-CM4-8','INM-CM5-0','IPSL-CM5A2-INCA','IPSL-CM6A-LR','MPI-ESM-1-2-HAM',
+'MPI-ESM1-2-HR','MPI-ESM1-2-LR','NorESM2-MM','UKESM1-0-LL','CanESM5','GFDL-CM4','CESM2-WACCM-FV2']   #'NorESM2-LM','CanESM5','GFDL-CM4','CESM2-WACCM-FV2',
+
+varname = ['sfcWind', 'tas','psl'] #'sfcWind', 'hfss', 'hfls', 'tas', 'ps', 'psl',,'pr'
 pvarname= ['ta']
 
 
@@ -43,6 +64,13 @@ m = len(modname)   #l+1
 
 time1=[2010, 1, 1]
 time2=[2012, 12, 30]
+
+lats_edges = np.arange(latr1,latr2+1,5)
+lons_edges = np.arange(-180,181,5)
+
+#binning
+n_bins  = 50
+M_range = (-20,5)
 
 for j in range(l,m):
 
@@ -54,93 +82,120 @@ for j in range(l,m):
         # print(k)
     # print(modname[j])
 
-for i in range(l,m):
-    lat  = locals()['sfcWind__'+str(i+1)][0]
-    lon  = locals()['sfcWind__'+str(i+1)][1]
-    time = locals()['sfcWind__'+str(i+1)][2]
+M_plot = []
+W_plot = []
+W_erro = []
+b_coun = []
+m = len(modname)
 
+for i in range(l,m):
     print(modname[i])
-    print('latitudes: length = ',len(lat), 'resolution = ',str(lat[1]-lat[0]))
-    print('longitudes: length = ',len(lon), 'resolution = ',str(lon[1]-lon[0]))
 
     for j in varname:
+        lat  = locals()[j+'__'+str(i+1)][0]
+        lon  = locals()[j+'__'+str(i+1)][1]
+        time = locals()[j+'__'+str(i+1)][2]
+
+        x_lat = np.array(lat)
+        lat_ind1 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr1)).argmin()])[0]
+        lat_ind2 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr2)).argmin()])[0]
+        lats = lat[lat_ind1[0]:lat_ind2[0]]
+
+        x_lon = lon
+        lon = np.array(lon)
+        lon[lon > 180] = lon[lon > 180]-360
+
+        maskm = np.ones((len(time),len(lats),len(lon)))
+
+        for a in range(len(lats)):
+            for b in range(len(lon)):
+                if globe.is_land(lats[a], lon[b])==True:
+                    maskm[:,a,b] = math.nan
+        print(j)
         locals()[j+str(i+1)] = locals()[j+'__'+str(i+1)][4]
         locals()[j+str(i+1)] = np.ma.filled(locals()[j+str(i+1)], fill_value=np.nan)
-        print(np.shape(locals()[j+str(i+1)]))
-#
+        locals()['plot_'+j+str(i+1)] = np.array(np.multiply(maskm,locals()[j+str(i+1)][:,lat_ind1[0]:lat_ind2[0],:]))
+        locals()['grid_'+j+str(i+1)] = regrid_wght_wnans(lats,lon,locals()['plot_'+j+str(i+1)],lats_edges,lons_edges)[0]
+
+
+
     for k in pvarname:
-        locals()[k+str(i+1)] = locals()[k+'__'+str(i+1)][4]
-        locals()[k+str(i+1)] = np.ma.filled(locals()[k+str(i+1)], fill_value=np.nan)
-        print(np.shape(locals()[k+str(i+1)]))
+        print(k)
+        lat  = locals()[k+'__'+str(i+1)][0]
+        lon  = locals()[k+'__'+str(i+1)][1]
+        time = locals()[k+'__'+str(i+1)][2]
 
-        locals()['lev'+str(i+1)] = locals()['ta__'+str(i+1)][3]
+        x_lat = np.array(lat)
+        lat_ind1 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr1)).argmin()])[0]
+        lat_ind2 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr2)).argmin()])[0]
+        lats = lat[lat_ind1[0]:lat_ind2[0]]
 
-    x_lat = np.array(lat)
-    lat_ind1 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr1)).argmin()])[0]
-    lat_ind2 = np.where(x_lat == x_lat.flat[np.abs(x_lat - (latr2)).argmin()])[0]
-    lats = lat[lat_ind1[0]:lat_ind2[0]]
+        x_lon = lon
+        lon = np.array(lon)
+        lon[lon > 180] = lon[lon > 180]-360
 
-    x_lon = lon
-    lon = np.array(lon)
-    lon[lon > 180] = lon[lon > 180]-360
+        maskm = np.ones((len(time),len(lats),len(lon)))
 
-    maskm = np.ones((len(time),len(lats),len(lon)))
+        for a in range(len(lats)):
+            for b in range(len(lon)):
+                if globe.is_land(lats[a], lon[b])==True:
+                    maskm[:,a,b] = math.nan
+        locals()['plot_levels'+str(i+1)] = locals()['ta__'+str(i+1)][3]
+        locals()['grid_'+k+str(i+1)] = []
 
-    for a in range(len(lats)):
-        for b in range(len(lon)):
-            if globe.is_land(lats[a], lon[b])==True:
-                maskm[:,a,b] = math.nan
+        levels = locals()['plot_levels'+str(i+1)]
 
- ###  averaged theta at 800hPa and surface
-    theta_850 = locals()['ta'+str(i+1)][:,1,:,:]*(100000/85000)**con
-    theta_700 = locals()['ta'+str(i+1)][:,2,:,:]*(100000/70000)**con
-    theta_800 = theta_700 + ((2/3) * (theta_850 - theta_700))
+        for p in range(len(levels)):
+            if levels[p] == 70000:
+                print(levels[p])
+                locals()[k+str(i+1)] = locals()[k+'__'+str(i+1)][4]
+                locals()[k+str(i+1)] = np.ma.filled(locals()[k+str(i+1)], fill_value=np.nan)
+                temp_700   = np.array(np.multiply(maskm,locals()[k+str(i+1)][:,p,lat_ind1[0]:lat_ind2[0],:]))
+                grid_t_700 = regrid_wght_wnans(lats,lon,temp_700,lats_edges,lons_edges)[0]
+                break;
 
-    theta_sfc = locals()['ts'+str(i+1)]*(100000/locals()['psl'+str(i+1)])**con
+    theta_700 = grid_t_700*(100000/70000)**con
+    theta_t2m = locals()['grid_tas'+str(i+1)]*(100000/locals()['grid_psl'+str(i+1)])**con
 
-### CAOI at 800hPa
-    M = theta_sfc - theta_800
+    M_700  = theta_t2m - theta_700
+    plot_M = M_700.flatten()
+    plot_W = locals()['grid_sfcWind'+str(i+1)].flatten()
 
-    x_sfcWind = locals()['sfcWind'+str(i+1)]
-    m_sfcWind = x_sfcWind[:,lat_ind1[0]:lat_ind2[0],:]
-    lats = lat[lat_ind1[0]:lat_ind2[0]]
+    ind = np.argsort(plot_M)
 
-    x_M = M
-    m_M = x_M[:,lat_ind1[0]:lat_ind2[0],:]
+    final_M = np.sort(plot_M)
+    final_W = plot_W[ind]
 
-    cao = np.array(m_M)
-    sw  = np.array(m_sfcWind)
+    indx = np.isnan(final_M*final_W)==False
 
-    plot_CAOI = np.array(np.multiply(maskm,cao))
-    wind      = np.array(np.multiply(maskm,sw))
+    # bin_means, bin_edges, binnumber       = stats.binned_statistic(final_M[indx], final_W[indx], 'mean', bins=n_bins)
+    # bin_means_c, bin_edges_c, binnumber_c = stats.binned_statistic(final_M[indx], final_W[indx], 'count',bins=n_bins)
+    # bin_means_s, bin_edges_s, binnumber_s = stats.binned_statistic(final_M[indx], final_W[indx], 'std',  bins=n_bins)
+    # bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(final_M[indx], final_M[indx], 'mean', bins=n_bins)
 
-    pl_theta  = plot_CAOI.reshape(-1)
-    pl_wind   = wind.reshape(-1)
-
-    plo_theta = pl_theta[pl_theta>-40]
-    plo_wind  = pl_wind[pl_theta>-40]
-
-    plot_theta = plo_theta[plo_theta<40]
-    plot_wind  = plo_wind[plo_theta<40]
-
-    ind = np.argsort(plot_theta)
-    xx = np.sort(plot_theta)
-    yy = plot_wind[ind]
-
-    indx = np.isnan(xx*yy)==False
-    #
-
-        ######## U10 PDF ##################
+    # ind_c = np.where(bin_means_c > 1000)
+    # print(bin_means_c)
+    # for x in bin_means_c:
+    #     if x
+    # std_err = bin_means_s/np.sqrt(bin_means_c)
+    M_plot.append(np.ma.masked_invalid(final_M[indx])) #[ind_c]
+    W_plot.append(np.ma.masked_invalid(final_W[indx]))
+#     W_erro.append(np.ma.masked_invalid(std_err))
+#     b_coun.append(len(M_plot[i]))
+#
+# bin_count = np.min(b_coun)
+# M_plot[i][0:bin_count], W_plot[i][0:bin_count]
+for i in range(len(modname)):
+    ######## U10 PDF ##################
     from scipy.stats import norm
     import seaborn as sns
     ##############################################
-    variableG = xx[indx]
+    variableG = M_plot[i]
     hx = np.histogram(variableG,1000)
     xvals = hx[1][:-1]
-    #
     xvalsSmooth = np.linspace(np.min(xvals),np.max(xvals),100)
     kernel = stats.gaussian_kde(variableG)
-    plt.plot(xvalsSmooth,kernel.pdf(xvalsSmooth),label = modname[i])
+    plt.plot(xvalsSmooth,kernel.pdf(xvalsSmooth),label = modname[i], color=use_colors[i])
     ##############################################
 
 
@@ -151,15 +206,85 @@ merlist = np.sort(glob.glob('../data_merra/all_lat_lon/level/MERRA2_*.nc'))
 sfclist = np.sort(glob.glob('../data_merra/all_lat_lon/surface/MERRA2_*.nc'))
 maclist = np.sort(glob.glob('../MACLWP_dailymean/take/wind1deg*.nc4'))
 
-import netCDF4 as nc
-import xarray as xr
+new_list_s = []
+new_list_m = []
+new_list_c = []
+
+s = 0
+m = 0
+length = max(len(merlist), len(sfclist))
+
+while m != length:
+    print(s,m)
+    name_s = os.path.basename(sfclist[s])
+    date_s = name_s.split(".")[2]
+
+    name_m = os.path.basename(merlist[m])
+    date_m = name_m.split(".")[2]
+    print(sfclist[s],date_s)
+    print(merlist[m],date_m)
+
+    if date_s==date_m:
+        new_list_s.append(sfclist[s])
+        new_list_m.append(merlist[m])
+
+        s = s+1
+        m = m+1
+
+    elif date_s<date_m:
+        s = s+1
+
+    elif date_s>date_m:
+        m = m+1
+
+macwind = []
+new_s   = []
+new_m   = []
+macdate = []
+for i in range(len(new_list_s)):
+    flag = 0
+    name_s = os.path.basename(new_list_s[i])
+    date_s = name_s.split(".")[2]
+
+    for k in range(len(maclist)):
+
+        name_mac = os.path.basename(maclist[k])
+        date_mac = name_mac.split(".")[1]
+        ddata    = nc.Dataset(maclist[k])
+        mactime  = ddata.variables['time'][:]
+        macw     = ddata.variables['sfcwind'][:]
+
+        if date_mac==date_s[0:-2]:
+            for r in range(len(mactime)):
+                if str(mactime[r]). zfill(2) == date_s[-2::]:
+                    macwind.append(macw[r,:,:])
+                    # print(maclist[k],str(mactime[r]). zfill(2))
+                    # print(new_list_s[i],date_s)
+                    new_m.append(new_list_m[i])
+                    new_s.append(new_list_s[i])
+                    macdate.append(date_mac+str(mactime[r]). zfill(2))
+
+                    flag = 1
+                    break;
+
+        if flag == 1:
+            break;
+
+
+macwind = np.array(macwind)
+
+
+
+
+#####################
+
 p_mer_T   = []
 p_mac_w   = []
 sfc_mer_T = []
 sfc_mer_P = []
 
-for i in range(len(sfclist)): #len(merlist)
-    d_path = merlist[i]
+for i in range(len(new_s)): #len(merlist)
+    d_path = new_m[i]
     data   = nc.Dataset(d_path)
     # print(d_path)
 
@@ -167,7 +292,7 @@ for i in range(len(sfclist)): #len(merlist)
         merlat = data.variables['lat'][:]
         merlon = data.variables['lon'][:]
         merlev = data.variables['lev'][:]
-        print(merlev[p_level])
+        print(merlev[p_level_700])
         #shape latitude
         mer_lat = np.flip(merlat)
         mer_lat = np.array(mer_lat)
@@ -178,121 +303,79 @@ for i in range(len(sfclist)): #len(merlist)
         merlon[merlon > 180] = merlon[merlon > 180]-360
         # mer_lon = np.array(merlon)
 
-    merT   = data.variables['T'][:] #(time, lev, lat, lon)
-    mer_T = np.array(merT[:,:,::-1,:])
-    p_mer_T.extend(mer_T[:,:,mlat_ind1[0]:mlat_ind2[0],:])
+    merT      = data.variables['T'][:] #(time, lev, lat, lon)
+    mer_T     = np.array(merT[:,:,::-1,:])
+    mer_T_700 = mer_T[:,p_level_700,mlat_ind1[0]:mlat_ind2[0],:]
+    p_mer_T.extend(mer_T_700)
 
-temp = np.array(p_mer_T)
-
-for i in range(len(sfclist)): #len(merlist)
-    s_path = sfclist[i]
+    s_path = new_s[i]
     sdata  = nc.Dataset(s_path)
-    # print(d_path)
 
-    if i==0:
-        sfclat = sdata.variables['lat'][:]
-        sfclon = sdata.variables['lon'][:]
-        #shape latitude
-        sfc_lat = np.flip(sfclat)
-        sfc_lat = np.array(sfc_lat)
-        flat_ind1 = np.where(sfc_lat == sfc_lat.flat[np.abs(sfc_lat - (latr1)).argmin()])[0]
-        flat_ind2 = np.where(sfc_lat == sfc_lat.flat[np.abs(sfc_lat - (latr2)).argmin()])[0]
-        p_sfc_lat = np.array(sfc_lat[flat_ind1[0]:flat_ind2[0]])
-        #shape longitude
-        sfclon[sfclon > 180] = sfclon[sfclon > 180]-360
-        # sfc_lon = np.array(sfclon)
-
-    sfcT   = sdata.variables['TS'][:]
+    sfcT   = sdata.variables['T2M'][:]
     sfc_T = np.array(sfcT[:,::-1,:])
-    sfc_mer_T.extend(sfc_T[:,flat_ind1[0]:flat_ind2[0],:])
+    sfc_mer_T.extend(sfc_T[:,mlat_ind1[0]:mlat_ind2[0],:])
+
 
     sfcP   = sdata.variables['SLP'][:]
     sfc_P  = np.array(sfcP[:,::-1,:])
-    sfc_mer_P.extend(sfc_P[:,flat_ind1[0]:flat_ind2[0],:])
+    sfc_mer_P.extend(sfc_P[:,mlat_ind1[0]:mlat_ind2[0],:])
 
+p_mac_w = macwind[:,mlat_ind1[0]:mlat_ind2[0],:]
+
+wind    = np.array(p_mac_w)
+temp    = np.array(p_mer_T)
 sfctemp = np.array(sfc_mer_T)
 sfcpres = np.array(sfc_mer_P)
 
-for i in range(len(maclist)): #len(maclist)
-    ddpath = maclist[i]
-    ddata  = nc.Dataset(ddpath)
-    macw   = ddata.variables['sfcwind'][:] #(time,lat,lon)
-    # print(ddpath)
+grid_obs_wind     = regrid_wght_wnans(p_mer_lat,merlon,wind,lats_edges,lons_edges)[0]
+grid_obs_temp_700 = regrid_wght_wnans(p_mer_lat,merlon,temp,lats_edges,lons_edges)[0]
+grid_obs_temp_sfc = regrid_wght_wnans(p_mer_lat,merlon,sfctemp,lats_edges,lons_edges)[0]
+grid_obs_pres_sfc = regrid_wght_wnans(p_mer_lat,merlon,sfcpres,lats_edges,lons_edges)[0]
 
-    if i==0:
-        maclat = ddata.variables['lat'][:]
-        maclon = ddata.variables['lon'][:]
-        #shape latitude
-        mac_lat = np.array(maclat)
-        slat_ind1 = np.where(mac_lat == mac_lat.flat[np.abs(mac_lat - (latr1)).argmin()])[0]
-        slat_ind2 = np.where(mac_lat == mac_lat.flat[np.abs(mac_lat - (latr2)).argmin()])[0]
-        p_mac_lat  = np.array(mac_lat[slat_ind1[0]:slat_ind2[0]])
-        #shape longitude
-        maclon[maclon > 180] = maclon[maclon > 180]-360
-        # mac_lon = np.array(maclon)
+lat_n = regrid_wght_wnans(p_mer_lat,merlon,sfcpres,lats_edges,lons_edges)[2][:,0]
+lon_n = regrid_wght_wnans(p_mer_lat,merlon,sfcpres,lats_edges,lons_edges)[1][0,:]
 
-    n_w = macw[:,slat_ind1[0]:slat_ind2[0],:]
-    p_mac_w.extend(n_w)
+theta_700 = np.array(np.multiply(grid_obs_temp_700, (100000/(merlev[p_level_700]*100))**(Rd/Cp)))
+theta_sfc = np.array(np.multiply(grid_obs_temp_sfc, (100000/grid_obs_pres_sfc)**(Rd/Cp)))
+print('theta_800', np.shape(theta_700))
+print('theta_sfc', np.shape(theta_sfc))
 
-#reshaping longitudes
-mer_lon = []
-mer_lon.extend(merlon[180:360])
-mer_lon.extend(merlon[0:180])
 
-sfc_lon = []
-sfc_lon.extend(sfclon[180:360])
-sfc_lon.extend(sfclon[0:180])
-
-mac_lon = []
-mac_lon.extend(maclon[180:360])
-mac_lon.extend(maclon[0:180])
-
-wind   = np.array(p_mac_w)
-
-theta_800 = np.array(np.multiply(temp[:,p_level,:,:], (100000/(merlev[p_level]*100))**(Rd/Cp)))
-theta_sfc = np.array(np.multiply(sfctemp, (100000/sfcpres)**(Rd/Cp)))
-
-p_CAOI = np.array(np.subtract(theta_sfc,theta_800))
+p_CAOI = np.array(np.subtract(theta_sfc,theta_700))
 
 
 #Mask for the ocean
-maskm = np.ones((len(temp),len(p_mer_lat),len(mer_lon)))
+maskm = np.ones((len(temp),len(lat_n),len(lon_n)))
 
-for a in range(len(p_mer_lat)):
-    for b in range(len(mer_lon)):
-        if globe.is_land(p_mer_lat[a], mer_lon[b])==True:
+for a in range(len(lat_n)):
+    for b in range(len(lon_n)):
+        if globe.is_land(lat_n[a], lon_n[b])==True:
             maskm[:,a,b] = math.nan
 ##############################
-#reshaping M and wind
-caoi_test = p_CAOI
-wind_test = wind[0:len(sfclist), :, :]
 
-plot_CAOI = np.ones((len(temp),len(p_mer_lat),len(mer_lon)))
-plot_CAOI[:,:,180:360] = caoi_test[:,:,0:180]
-plot_CAOI[:,:,0:180]   = caoi_test[:,:,180:360]
-plot_CAOI = np.array(plot_CAOI)
-
-plot_wind = np.ones((len(temp),len(p_mer_lat),len(mer_lon)))
-plot_wind[:,:,180:360] = wind_test[:,:,0:180]
-plot_wind[:,:,0:180]   = wind_test[:,:,180:360]
-plot_wind = np.array(plot_wind)
 
 #ocean only mask
-plot_CAOI = np.array(np.multiply(maskm,plot_CAOI))
-plot_wind = np.array(np.multiply(maskm,plot_wind))
+plot_CAOI = np.array(np.multiply(maskm,p_CAOI))
+plot_wind = np.array(np.multiply(maskm,grid_obs_wind))
 
-plot_indx = np.isnan(plot_CAOI*plot_CAOI)==False
+plot_indx = np.isnan(plot_CAOI*plot_wind)==False
 plot_mer_theta = plot_CAOI[plot_indx]
 plot_mac_wind  = plot_wind[plot_indx]
+
+w_sfc = plot_mac_wind[plot_mac_wind>0]
+m_700 = plot_mer_theta[plot_mac_wind>0]
 ###################################
 
-#Sort and removing nan values
-ind = np.argsort(plot_mer_theta)
-xx  = np.sort(plot_mer_theta)
-yy  = plot_mac_wind[ind]
+from scipy import stats
+# bin_means, bin_edges, binnumber       = stats.binned_statistic(m_700, w_sfc, 'mean', bins=n_bins, range=M_range)
+# bin_means_c, bin_edges_c, binnumber_c = stats.binned_statistic(m_700, w_sfc, 'count', bins=n_bins, range=M_range)
+# bin_means_s, bin_edges_s, binnumber_s = stats.binned_statistic(m_700, w_sfc, 'std', bins=n_bins, range=M_range)
+# bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(m_700, m_700, 'mean', bins=n_bins, range=M_range)
 
-xx_new = xx[yy>0]
-yy_new = yy[yy>0]
+W_SFC = np.ma.masked_invalid(w_sfc)
+M_700 = np.ma.masked_invalid(m_700)
+# s_err = bin_means_s/np.sqrt(bin_means_c)
+# W_err = np.ma.masked_invalid(s_err)
 
 ############observations U10 PDF############
 from scipy.stats import norm
@@ -300,7 +383,7 @@ import matplotlib as mpl
 mpl.rcParams['agg.path.chunksize'] = 10000
 
 ##### U10 (yy_new) OR M(xx_new)
-variableO = xx_new
+variableO = M_700[np.isnan(M_700)==False]
 test_yy_new = np.sort(variableO)
 
 import seaborn as sns
@@ -315,9 +398,9 @@ plt.plot(xvalsSmooth,kernel.pdf(xvalsSmooth),linestyle = '--', color = 'k', labe
 ##############################################
 
 
-plt.legend()
+#plt.legend()
 plt.title('M PDF')
-plt.savefig('../figures/MPDF.png')
+plt.savefig('../figures/noBin_final_MPDF.png')
 
 # indx = np.isnan(xx_new*yy_new)==False
 #

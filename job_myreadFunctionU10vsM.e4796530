@@ -1,7 +1,0 @@
-/glade/work/geethma/research/codes/myReadGCMsDaily.py:60: UserWarning: WARNING: missing_value not used since it
-cannot be safely cast to variable data type
-  data.extend(np.array(datai[ind1:ind2+1,:,:]))
-Traceback (most recent call last):
-  File "/glade/work/geethma/research/codes/myreadFunctionU10vsM.py", line 170, in <module>
-    d_path = merlist[i]
-IndexError: index 1091 is out of bounds for axis 0 with size 1091
