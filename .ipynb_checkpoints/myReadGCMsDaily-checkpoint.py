@@ -21,16 +21,16 @@ pp_path_scratch='/glade/scratch/geethma/cmip6'
 def read_var_mod(level, modn, exper, varnm, time1, time2):
     path   = pp_path_scratch+'/'+level+'/'
 
-    ncname = 'CMIP6.*'+modn+'*'+exper+'*'+varnm
+    ncname = 'CMIP6.*'+modn+'.*'+exper+'*'+varnm
 
     fn     = np.sort(glob.glob(path+ncname+'*nc*'))
-    #print(len(fn))
+    print(len(fn))
 
     times = []
     data  = []
 
     for i in range(len(fn)):
-        #print(fn[i])
+        print(fn[i])
         f      = nc.Dataset(fn[i])
         time   = f.variables['time']
 

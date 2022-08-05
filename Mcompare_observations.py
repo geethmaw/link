@@ -2,7 +2,7 @@
 # @Date:   2022-07-05T09:54:01-06:00
 # @Email:  wgeethma@uwyo.edu
 # @Last modified by:   geethmawerapitiya
-# @Last modified time: 2022-07-08T02:14:04-06:00
+# @Last modified time: 2022-07-18T03:53:24-06:00
 
 ## Compare M computed by SST and 800hPa with 2m and 700hPa for OBSERVATIONS
 ## Updated 700hPa to 850hPa   p_level_700 = 0  ### 850hPa and t2m   CAOI_700  = np.array(np.subtract(theta_t2m,theta_700))
@@ -22,169 +22,98 @@ from regrid_wght_3d import regrid_wght_wnans
 import matplotlib as mpl
 mpl.rcParams['figure.dpi'] = 100
 plt.clf()
-plt.rcParams['figure.figsize'] = (12.0/2.5, 12.0/2.5)
+plt.rcParams['figure.figsize'] = (8, 8)
 
 plt.style.use('seaborn-whitegrid')
 
-#####Constants
-Cp = 1004           #J/kg/K
-Rd = 287            #J/kg/K
-con= Rd/Cp
-
+# #####Constants
+# Cp = 1004           #J/kg/K
+# Rd = 287            #J/kg/K
+# con= Rd/Cp
+from con_models import get_cons
+con, use_colors, varname, pvarname, modname, warming_modname, hiresmd, amip_md = get_cons()
 #latitude range
 latr1 = 30
 latr2 = 80
+M_range = (0,15)
+max_c   = 500
+n_bins  = 100
 
-#pressure levels in observations
-p_level_800 = 1  ### 800hPa
-p_level_700 = 0  ### 850hPa
+from obs_data_function import obs
+merwind_t1, macwind_t1, temp_t1, sfctemp_t1, sfcpres_t1, p_lev_obs_t1, p_mer_lat, merlon, merlev = obs('surface','T2M', 850, latr1, latr2)
+merwind_t2, macwind_t2, temp_t2, sfctemp_t2, sfcpres_t2, p_lev_obs_t2, p_mer_lat, merlon, merlev = obs('surface','TS', 800, latr1, latr2)
 
-time1=[2010, 1, 1]
-time2=[2012, 12, 30]
+theta_850 = np.array(np.ma.filled(np.multiply(temp_t1, (100000/(merlev[p_lev_obs_t1]*100))**(con)), fill_value=np.nan))
+theta_800 = np.array(np.ma.filled(np.multiply(temp_t2, (100000/(merlev[p_lev_obs_t2]*100))**(con)), fill_value=np.nan))
+theta_t2m = np.array(np.ma.filled(np.multiply(sfctemp_t1, (100000/sfcpres_t1)**(con)), fill_value=np.nan))
+theta_sfc = np.array(np.ma.filled(np.multiply(sfctemp_t2, (100000/sfcpres_t2)**(con)), fill_value=np.nan))
 
-## OBSERVATIONS
-import glob
-merlist = np.sort(glob.glob('../data_merra/all_lat_lon/level/MERRA2_*.nc'))
-sfclist = np.sort(glob.glob('../data_merra/all_lat_lon/surface/MERRA2_*.nc'))
+CAOI_850  = np.array(np.subtract(theta_t2m,theta_850))
+CAOI_800  = np.array(np.subtract(theta_sfc,theta_800))
 
+#Mask for the ocean
+maskm = np.ones((len(p_mer_lat),len(merlon)))
 
-new_list_s = []
-new_list_m = []
-
-s = 0
-m = 0
-length = max(len(merlist), len(sfclist))
-
-while m != length:
-    print(s,m)
-    name_s = os.path.basename(sfclist[s])
-    date_s = name_s.split(".")[2]
-
-    name_m = os.path.basename(merlist[m])
-    date_m = name_m.split(".")[2]
-
-    print(sfclist[s],date_s)
-    print(merlist[m],date_m)
-
-    if date_s==date_m:
-        new_list_s.append(sfclist[s])
-        new_list_m.append(merlist[m])
-        s = s+1
-        m = m+1
-
-    elif date_s<date_m:
-        s = s+1
-
-    elif date_s>date_m:
-        m = m+1
-
-plot_CAOI_800 = []
-plot_CAOI_700 = []
-
-for i in range(len(new_list_m)): #len(merlist)
-    d_path = new_list_m[i]
-    data   = nc.Dataset(d_path)
-    # print(d_path)
-
-    if i==0:
-        merlat = data.variables['lat'][:]
-        merlon = data.variables['lon'][:]
-        merlev = data.variables['lev'][:]
-        print(merlev[p_level_800])
-        print(merlev[p_level_700])
-        #shape latitude
-        mer_lat = np.flip(merlat)
-        mer_lat = np.array(mer_lat)
-        mlat_ind1 = np.where(mer_lat == mer_lat.flat[np.abs(mer_lat - (latr1)).argmin()])[0]
-        mlat_ind2 = np.where(mer_lat == mer_lat.flat[np.abs(mer_lat - (latr2)).argmin()])[0]
-        p_mer_lat  = np.array(mer_lat[mlat_ind1[0]:mlat_ind2[0]])
-        #shape longitude
-        merlon[merlon > 180] = merlon[merlon > 180]-360
-        # mer_lon = np.array(merlon)
-
-######## UL temperatures
-    merT      = data.variables['T'][:] #(time, lev, lat, lon)
-    mer_T_800 = np.array(np.ma.filled(merT[0,p_level_800,::-1,:], fill_value=np.nan))
-    mer_T_700 = np.array(np.ma.filled(merT[0,p_level_700,::-1,:], fill_value=np.nan))
-    mer_T_800 = mer_T_800[mlat_ind1[0]:mlat_ind2[0],:]
-    mer_T_700 = mer_T_700[mlat_ind1[0]:mlat_ind2[0],:]
-
-######## SURFACE temperatures
-    s_path = new_list_s[i]
-    sdata  = nc.Dataset(s_path)
-
-####### SST
-    sfcT      = sdata.variables['TS'][:]
-    sfc_T     = np.array(np.ma.filled(sfcT[0,::-1,:], fill_value=np.nan))
-    mer_T_sfc = sfc_T[mlat_ind1[0]:mlat_ind2[0],:]
-
-####### T2M
-    t2mT      = sdata.variables['T2M'][:]
-    t2m_T     = np.array(np.ma.filled(t2mT[0,::-1,:], fill_value=np.nan))
-    mer_T_t2m = t2m_T[mlat_ind1[0]:mlat_ind2[0],:]
-
-####### SLP
-    sfcP      = sdata.variables['SLP'][:]
-    sfc_P     = np.array(np.ma.filled(sfcP[0,::-1,:], fill_value=np.nan))
-    mer_P_sfc = sfc_P[mlat_ind1[0]:mlat_ind2[0],:]
-
-
-    theta_800 = np.array(np.ma.filled(np.multiply(mer_T_800, (100000/(merlev[p_level_800]*100))**(Rd/Cp)), fill_value=np.nan))
-    theta_700 = np.array(np.ma.filled(np.multiply(mer_T_700, (100000/(merlev[p_level_700]*100))**(Rd/Cp)), fill_value=np.nan))
-    theta_sfc = np.array(np.ma.filled(np.multiply(mer_T_sfc, (100000/mer_P_sfc)**(Rd/Cp)), fill_value=np.nan))
-    theta_t2m = np.array(np.ma.filled(np.multiply(mer_T_t2m, (100000/mer_P_sfc)**(Rd/Cp)), fill_value=np.nan))
-
-    CAOI_800  = np.array(np.subtract(theta_sfc,theta_800))
-    CAOI_700  = np.array(np.subtract(theta_t2m,theta_700))
-
-
-    #Mask for the ocean
-    maskm = np.ones((len(p_mer_lat),len(merlon)))
-
-    for a in range(len(p_mer_lat)):
-        for b in range(len(merlon)):
-            if globe.is_land(p_mer_lat[a], merlon[b])==True:
-                maskm[a,b] = math.nan
+for a in range(len(p_mer_lat)):
+    for b in range(len(merlon)):
+        if globe.is_land(p_mer_lat[a], merlon[b])==True:
+            maskm[a,b] = math.nan
     ##############################
 #######masked CAOI
-    mask_CAOI_800  = np.array(np.multiply(maskm,CAOI_800)).ravel()
-    mask_CAOI_700  = np.array(np.multiply(maskm,CAOI_700)).ravel()
+plot_CAOI_850  = np.array(np.multiply(maskm,CAOI_850)).ravel()
+plot_CAOI_800  = np.array(np.multiply(maskm,CAOI_800)).ravel()
 
-    plot_CAOI_800.extend(mask_CAOI_800)
-    plot_CAOI_700.extend(mask_CAOI_700)
-
-plot_CAOI_800 = np.array(plot_CAOI_800)
-plot_CAOI_700 = np.array(plot_CAOI_700)
-plot_indx = np.isnan(plot_CAOI_800*plot_CAOI_700)==False
+plot_indx = np.isnan(plot_CAOI_850*plot_CAOI_800)==False
 ###################################
+ind = np.argsort(plot_CAOI_800[plot_indx])
+x   = np.sort(plot_CAOI_800[plot_indx])
+y   = plot_CAOI_850[plot_indx][ind]
 
+ind_sst = np.where(x>0)
+xx = x[ind_sst]
+yy = y[ind_sst]
+
+ind = np.isnan(xx*yy)==False
+
+# plt.plot(xx[ind], yy[ind])
+
+
+
+# x   = x[y>-30]
+# y   = y[y>-30]
+#
+n_bins = 200
 from scipy import stats
-bin_means, bin_edges, binnumber       = stats.binned_statistic(plot_CAOI_800[plot_indx], plot_CAOI_700[plot_indx], 'mean', bins=100, range=(-30,20))
-bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(plot_CAOI_800[plot_indx], plot_CAOI_800[plot_indx], 'mean', bins=100, range=(-30,20))
-bin_means_c, bin_edges_c, binnumber_c = stats.binned_statistic(plot_CAOI_800[plot_indx], plot_CAOI_700[plot_indx], 'count', bins=100,range=(-30,20))
+bin_means, bin_edges, binnumber       = stats.binned_statistic(xx[ind], yy[ind], 'mean',  bins=n_bins)
+bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(xx[ind], xx[ind], 'mean',  bins=n_bins)
 
-ind_c = np.where(bin_means_c > 1500)
+ind_c = np.isnan(bin_means*bin_means_x)==False
 
 M_800 = np.ma.masked_invalid(bin_means_x[ind_c])
-M_700 = np.ma.masked_invalid(bin_means[ind_c])
+M_850 = np.ma.masked_invalid(bin_means[ind_c])
 
-corr = np.ma.corrcoef(M_800, M_700)
-plt.plot(M_800, M_700, label='observations: cor-coef: '+str(np.round(corr[0,1],10)), color="#117733")
+corr = np.ma.corrcoef(M_850, M_800)
 
-plt.plot([-30,15], [-30,15], linestyle='--', color='red',label='1-1')
-
-x1_vals = np.abs(M_800-0)
-x1      = np.where(x1_vals==np.min(x1_vals))[0][0]
-x2_vals = np.abs(M_800-10)
-x2      = np.where(x2_vals==np.min(x2_vals))[0][0]
-plt.fill_between(M_800[x1:x2] , M_700[x1:x2], np.repeat(-30, x2-x1) ,color ='red', alpha=0.2)
-plt.fill_betweenx(M_700[x1:x2], np.repeat(-30, x2-x1), M_800[x1:x2] ,color ='red', alpha=0.2)
-
-plt.legend()
-plt.xlabel('SST, 800hPa')
+plt.clf()
+plt.plot(xx[ind], yy[ind], label='observations: cor-coef: '+str(np.round(corr[0,1],10)), color="#117733")
+plt.ylabel('t2m, 850hPa')
 # yti = str(merlev[p_level])
 plt.title('Stability matrix comparison\nfor Observations',fontsize=7)
-plt.ylabel("t2m, 850hPa")
-plt.savefig('../figures/850_t2m_MforOBS.png')
-
-# index = np.isnan(bin_means_x*bin_means)==False
+plt.xlabel("SST, 800hPa")
+plt.savefig('../figures/noBinsnew_800&850.png')
+#
+# plt.plot([-30,0], [-30,0], linestyle='--', color='red',label='1-1')
+#
+# x1_vals = np.abs(M_800-0)
+# x2_vals = np.abs(M_800-10)
+# x1      = np.where(x1_vals==np.min(x1_vals))[0][0]
+# x2      = np.where(x2_vals==np.min(x2_vals))[0][0]
+# plt.fill_between(M_800[x1:x2] , M_850[x1:x2], np.repeat(-30, x2-x1) ,color ='red', alpha=0.2)
+# plt.fill_betweenx(M_850[x1:x2], np.repeat(-30, x2-x1), M_800[x1:x2] ,color ='red', alpha=0.2)
+#
+# plt.legend()
+# plt.ylabel('t2m, 850hPa')
+# # yti = str(merlev[p_level])
+# plt.title('Stability matrix comparison\nfor Observations',fontsize=7)
+# plt.xlabel("SST, 800hPa")
+# plt.savefig('../figures/800&TS_850&t2m_MforOBS.png')

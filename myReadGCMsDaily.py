@@ -2,9 +2,7 @@
 # @Date:   2022-06-06T16:07:59-06:00
 # @Email:  wgeethma@uwyo.edu
 # @Last modified by:   geethmawerapitiya
-# @Last modified time: 2022-07-08T02:44:15-06:00
-
-
+# @Last modified time: 2022-07-18T23:55:47-06:00
 
 import netCDF4 as nc
 import glob
@@ -21,16 +19,16 @@ pp_path_scratch='/glade/scratch/geethma/cmip6'
 def read_var_mod(level, modn, exper, varnm, time1, time2):
     path   = pp_path_scratch+'/'+level+'/'
 
-    ncname = 'CMIP6.*'+modn+'*'+exper+'*'+varnm
+    ncname = 'CMIP6.*'+modn+'.*'+exper+'*'+varnm
 
     fn     = np.sort(glob.glob(path+ncname+'*nc*'))
-    #print(len(fn))
+    # print(len(fn))
 
     times = []
     data  = []
 
     for i in range(len(fn)):
-        #print(fn[i])
+        # print(fn[i])
         f      = nc.Dataset(fn[i])
         time   = f.variables['time']
 

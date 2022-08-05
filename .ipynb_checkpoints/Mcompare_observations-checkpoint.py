@@ -22,7 +22,7 @@ from regrid_wght_3d import regrid_wght_wnans
 import matplotlib as mpl
 mpl.rcParams['figure.dpi'] = 100
 plt.clf()
-plt.rcParams['figure.figsize'] = (12.0/2.5, 12.0/2.5)
+plt.rcParams['figure.figsize'] = (8, 8)
 
 plt.style.use('seaborn-whitegrid')
 
@@ -90,6 +90,8 @@ for i in range(len(new_list_m)): #len(merlist)
         merlat = data.variables['lat'][:]
         merlon = data.variables['lon'][:]
         merlev = data.variables['lev'][:]
+        print(merlev[p_level_800])
+        print(merlev[p_level_700])
         #shape latitude
         mer_lat = np.flip(merlat)
         mer_lat = np.array(mer_lat)

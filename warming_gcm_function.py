@@ -2,7 +2,7 @@
 # @Date:   2022-07-07T15:39:03-06:00
 # @Email:  wgeethma@uwyo.edu
 # @Last modified by:   wgeethma
-# @Last modified time: 2022-07-07T16:09:59-06:00
+# @Last modified time: 2022-07-19T16:27:55-06:00
 
 import netCDF4 as nc
 import glob

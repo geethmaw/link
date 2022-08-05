@@ -1,8 +1,8 @@
 # @Author: Geethma Werapitiya <wgeethma>
 # @Date:   2022-06-06T16:07:59-06:00
 # @Email:  wgeethma@uwyo.edu
-# @Last modified by:   geethmawerapitiya
-# @Last modified time: 2022-07-08T02:44:15-06:00
+# @Last modified by:   wgeethma
+# @Last modified time: 2022-07-15T15:48:03-06:00
 
 
 
@@ -22,15 +22,16 @@ def read_amip_var(level, modn, exper, varnm, time1, time2):
     path   = pp_path_scratch+'/'+level+'/'
 
     ncname = varnm+'_*'+modn+'*'+exper+'*'
+    # print(path+ncname+'*nc*')
 
     fn     = np.sort(glob.glob(path+ncname+'*nc*'))
-    #print(len(fn))
+    # print(len(fn))
 
     times = []
     data  = []
 
     for i in range(len(fn)):
-        #print(fn[i])
+        # print(fn[i])
         f      = nc.Dataset(fn[i])
         time   = f.variables['time']
 
