@@ -29,10 +29,10 @@ def get_cons():
 
     hiresmd = ['BCC-CSM2-HR','FGOALS-f3-L','MRI-AGCM3-2-H'] #,'MRI-AGCM3-2-S'
 
-    amip_md = ['CESM2','IPSL-CM6A-LR']
+    amip_md = ['CESM2','IPSL-CM6A-LR','GISS-E3-G']
 
     #######variables
-    varname         = ['sfcWind', 'tas','psl'] #'sfcWind', 'hfss', 'hfls', 'tas', 'ps', 'psl',,'pr'
+    varname         = ['sfcWind', 'ts','psl'] #'sfcWind', 'hfss', 'hfls', 'tas', 'ps', 'psl',,'pr'
     pvarname        = ['ta']
 
 

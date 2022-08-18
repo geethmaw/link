@@ -40,15 +40,15 @@ max_c   = 500
 n_bins  = 100
 
 from obs_data_function import obs
-merwind_t1, macwind_t1, temp_t1, sfctemp_t1, sfcpres_t1, p_lev_obs_t1, p_mer_lat, merlon, merlev = obs('surface','T2M', 850, latr1, latr2)
+merwind_t1, macwind_t1, temp_t1, sfctemp_t1, sfcpres_t1, p_lev_obs_t1, p_mer_lat, merlon, merlev = obs('surface','T2M', 700, latr1, latr2)
 merwind_t2, macwind_t2, temp_t2, sfctemp_t2, sfcpres_t2, p_lev_obs_t2, p_mer_lat, merlon, merlev = obs('surface','TS', 800, latr1, latr2)
 
-theta_850 = np.array(np.ma.filled(np.multiply(temp_t1, (100000/(merlev[p_lev_obs_t1]*100))**(con)), fill_value=np.nan))
+theta_700 = np.array(np.ma.filled(np.multiply(temp_t1, (100000/(merlev[p_lev_obs_t1]*100))**(con)), fill_value=np.nan))
 theta_800 = np.array(np.ma.filled(np.multiply(temp_t2, (100000/(merlev[p_lev_obs_t2]*100))**(con)), fill_value=np.nan))
 theta_t2m = np.array(np.ma.filled(np.multiply(sfctemp_t1, (100000/sfcpres_t1)**(con)), fill_value=np.nan))
 theta_sfc = np.array(np.ma.filled(np.multiply(sfctemp_t2, (100000/sfcpres_t2)**(con)), fill_value=np.nan))
 
-CAOI_850  = np.array(np.subtract(theta_t2m,theta_850))
+CAOI_700  = np.array(np.subtract(theta_t2m,theta_700))
 CAOI_800  = np.array(np.subtract(theta_sfc,theta_800))
 
 #Mask for the ocean
@@ -60,14 +60,14 @@ for a in range(len(p_mer_lat)):
             maskm[a,b] = math.nan
     ##############################
 #######masked CAOI
-plot_CAOI_850  = np.array(np.multiply(maskm,CAOI_850)).ravel()
+plot_CAOI_700  = np.array(np.multiply(maskm,CAOI_700)).ravel()
 plot_CAOI_800  = np.array(np.multiply(maskm,CAOI_800)).ravel()
 
-plot_indx = np.isnan(plot_CAOI_850*plot_CAOI_800)==False
+plot_indx = np.isnan(plot_CAOI_700*plot_CAOI_800)==False
 ###################################
 ind = np.argsort(plot_CAOI_800[plot_indx])
 x   = np.sort(plot_CAOI_800[plot_indx])
-y   = plot_CAOI_850[plot_indx][ind]
+y   = plot_CAOI_700[plot_indx][ind]
 
 ind_sst = np.where(x>0)
 xx = x[ind_sst]
@@ -90,17 +90,17 @@ bin_means_x, bin_edges_x, binnumber_x = stats.binned_statistic(xx[ind], xx[ind],
 ind_c = np.isnan(bin_means*bin_means_x)==False
 
 M_800 = np.ma.masked_invalid(bin_means_x[ind_c])
-M_850 = np.ma.masked_invalid(bin_means[ind_c])
+M_700 = np.ma.masked_invalid(bin_means[ind_c])
 
-corr = np.ma.corrcoef(M_850, M_800)
+corr = np.ma.corrcoef(M_700, M_800)
 
 plt.clf()
 plt.plot(xx[ind], yy[ind], label='observations: cor-coef: '+str(np.round(corr[0,1],10)), color="#117733")
-plt.ylabel('t2m, 850hPa')
+plt.ylabel('t2m, 700hPa')
 # yti = str(merlev[p_level])
 plt.title('Stability matrix comparison\nfor Observations',fontsize=7)
 plt.xlabel("SST, 800hPa")
-plt.savefig('../figures/noBinsnew_800&850.png')
+plt.savefig('../figures/noBinsnew_800&700.png')
 #
 # plt.plot([-30,0], [-30,0], linestyle='--', color='red',label='1-1')
 #

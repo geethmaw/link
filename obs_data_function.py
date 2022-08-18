@@ -3,7 +3,7 @@
 # @Project: Research
 # @Filename: macwind_function.py
 # @Last modified by:   wgeethma
-# @Last modified time: 2022-07-15T16:51:18-06:00
+# @Last modified time: 2022-08-16T15:38:24-06:00
 
 import glob
 import numpy as np
@@ -21,13 +21,15 @@ def obs(folder, sT, pressure, latr1, latr2):
     new_list_s = []
     new_list_m = []
     new_list_c = []
+    time       = []
+    time_f     = []
 
     s = 0
     m = 0
     print((len(merlist), len(sfclist)))
     length = max(len(merlist), len(sfclist))
 
-    #if 
+    #if
     while (s < len(sfclist) and m < len(merlist)):
         #print(m,s)
         name_s = os.path.basename(sfclist[s])
@@ -40,6 +42,7 @@ def obs(folder, sT, pressure, latr1, latr2):
             #print(date_s, date_m)
             new_list_s.append(sfclist[s])
             new_list_m.append(merlist[m])
+            time.append(date_s)
 
             s = s+1
             m = m+1
@@ -74,6 +77,7 @@ def obs(folder, sT, pressure, latr1, latr2):
                         new_m.append(new_list_m[i])
                         new_s.append(new_list_s[i])
                         macdate.append(date_mac+str(mactime[r]). zfill(2))
+                        time_f.append(date_s)
 
                         flag = 1
                         break;
@@ -143,10 +147,10 @@ def obs(folder, sT, pressure, latr1, latr2):
 
     p_mac_w = macwind[:,mlat_ind1[0]:mlat_ind2[0],:]
 
-    macwind    = np.array(p_mac_w)
+    macwind = np.array(p_mac_w)
     temp    = np.array(p_mer_T)
     sfctemp = np.array(sfc_mer_T)
     sfcpres = np.array(sfc_mer_P)
     merwind = np.array(np.sqrt(np.array(sfc_mer_U)**2 + np.array(sfc_mer_V)**2))
 
-    return(merwind, macwind, temp, sfctemp, sfcpres, p_lev_obs, p_mer_lat, merlon, merlev)
+    return(merwind, macwind, temp, sfctemp, sfcpres, p_lev_obs, p_mer_lat, merlon, merlev, time_f)
